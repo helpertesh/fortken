@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% if g.user.role == 'owner' and missing_social %}
+<div class="notice panel">
+  <span class="notice-icons">{% for key in missing_social %}{{ social_icon(key) }}{% endfor %}</span>
+  <p><strong>Add your social media links.</strong>
+    {% for key in missing_social %}{{ SOCIAL_LABELS[key] }}{{ ', ' if not loop.last }}{% endfor %} {{ 'icons are' if missing_social|length > 1 else 'icon is' }}
+    not on the website yet. Icons only show once a link is saved.</p>
+  <a class="a-btn a-btn-purple a-btn-sm" href="{{ url_for('admin.settings') }}#social">Add links</a>
+</div>
+{% endif %}
+<div class="stat-grid">
+  <a class="stat stat-gold" href="{{ url_for('admin.enquiry_list', status='new') }}"><span>New, not yet handled</span><b>{{ stats.new }}</b></a>
+  <div class="stat"><span>Enquiries this month</span><b>{{ stats.this_month }}</b></div>
+  <div class="stat"><span>All enquiries</span><b>{{ stats.total }}</b></div>
+  <div class="stat stat-green"><span>Won jobs</span><b>{{ stats.won }}</b></div>
+</div>
+
+<div class="dash-grid">
+  <section class="panel">
+    <div class="panel-head"><h2>Latest enquiries</h2><a href="{{ url_for('admin.enquiry_list') }}">See all</a></div>
+    {% if stats.recent %}
+    <ul class="recent-list">
+      {% for e in stats.recent %}
+      <li><a href="{{ url_for('admin.enquiry_detail', enquiry_id=e.id) }}">
+        <span><strong>{{ e.name }}</strong><small>{{ e.service or 'No service chosen' }} &middot; {{ e.created_at|local_time }}</small></span>
+        <span class="status status-{{ e.status }}">{{ STATUSES[e.status] }}</span></a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No enquiries yet. They will appear here when visitors use the form on the website.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Requests by service</h2></div>
+    {% if stats.by_service %}
+    {% set top = stats.by_service[0].n %}
+    <ul class="bars">
+      {% for row in stats.by_service %}
+      <li><span>{{ row.service }}</span><b>{{ row.n }}</b>
+        <i style="width: {{ (row.n / top * 100)|round }}%"></i></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">Nothing to show yet.</p>
+    {% endif %}
+    <div class="panel-head panel-head-sub"><h2>By status</h2></div>
+    <ul class="status-row">
+      {% for key, label in STATUSES.items() %}
+      <li><a href="{{ url_for('admin.enquiry_list', status=key) }}"><span class="status status-{{ key }}">{{ label }}</span> <b>{{ stats.by_status.get(key, 0) }}</b></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% from "admin/_macros.html" import csrf, flashes %}
+<!doctype html>
+<html lang="en-KE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Admin{% endblock %} | KF 4Fortken Admin</title>
+  <link rel="icon" href="/assets/logo/logo-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin">
+{% if g.user %}
+  {% set nav = [
+    ('admin.dashboard', 'Dashboard', false),
+    ('admin.enquiry_list', 'Enquiries', false),
+    ('admin.slides', 'Hero Slides', true),
+    ('admin.services', 'Services', true),
+    ('admin.testimonials', 'Testimonials', true),
+    ('admin.settings', 'Contact & Social Media', true),
+    ('admin.users', 'Users', true),
+  ] %}
+  <div class="admin-shell">
+    <aside class="admin-side">
+      <a class="admin-brand" href="{{ url_for('admin.dashboard') }}"><img src="/assets/logo/logo-light.svg" alt="KF 4Fortken Holdings Ltd" width="468" height="132"></a>
+      <nav class="admin-nav" aria-label="Admin">
+        {% for endpoint, label, owner_only in nav if not owner_only or g.user.role == 'owner' %}
+        {% set active = request.endpoint == endpoint or (endpoint == 'admin.enquiry_list' and request.endpoint.startswith('admin.enquiry')) %}
+        <a href="{{ url_for(endpoint) }}"{% if active %} aria-current="page"{% endif %}>{{ label }}
+          {% if endpoint == 'admin.enquiry_list' and new_count %}<span class="badge" title="New enquiries">{{ new_count }}</span>{% endif %}</a>
+        {% endfor %}
+        <a href="/" target="_blank" rel="noopener">View website &#8599;</a>
+      </nav>
+      <div class="admin-user">
+        <a href="{{ url_for('admin.account') }}"{% if request.endpoint == 'admin.account' %} aria-current="page"{% endif %}>
+          <strong>{{ g.user.name }}</strong><small>{{ ROLES[g.user.role].split(' (')[0] }} &middot; My account</small></a>
+        <form method="post" action="{{ url_for('admin.logout') }}">{{ csrf() }}<button class="a-btn a-btn-ghost a-btn-sm" type="submit">Sign out</button></form>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <div class="admin-head">
+        <h1>{{ self.title() }}</h1>
+        {% block head_actions %}{% endblock %}
+      </div>
+      {{ flashes() }}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+{% else %}
+  {% block bare %}{% endblock %}
+{% endif %}
+  <script src="/js/admin.js"></script>
+</body>
+</html>

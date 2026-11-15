@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<p class="lead">Services are grouped into divisions on the website. Each one has a card on the home page, its own page (opened with
+  "Learn more"), and an option in the enquiry form. Click <strong>Edit page</strong> to change the text, photos and sections.</p>
+
+<details class="panel add-panel"{% if not groups %} open{% endif %}>
+  <summary>+ Add a service</summary>
+  <form method="post" action="{{ url_for('admin.service_create') }}" enctype="multipart/form-data">{{ csrf() }}
+    <div class="form-row form-row-3">
+      <label class="a-field">Title <input name="title" maxlength="80" required></label>
+      <label class="a-field">Division
+        <select name="category">{% for key, info in CATEGORIES.items() %}<option value="{{ key }}">{{ info.title }}</option>{% endfor %}</select>
+      </label>
+      <label class="a-field">Icon
+        <select name="icon">{% for key, val in ICONS.items() %}<option value="{{ key }}">{{ val[0] }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <label class="a-field">Short description <small>shown on the card</small>
+      <textarea name="description" rows="2" maxlength="300" required></textarea></label>
+    <label class="a-field">Photo <input type="file" name="image" accept="image/jpeg,image/png,image/webp" required data-preview></label>
+    <img class="preview" alt="" hidden>
+    <button class="a-btn a-btn-gold" type="submit">Add service and edit its page</button>
+  </form>
+</details>
+
+{% for key, info, items in groups %}
+<h2 class="group-title">{{ info.title }} <span class="muted">{{ items|length }} service{{ 's' if items|length != 1 }}</span></h2>
+<ol class="item-list">
+  {% for item in items %}
+  <li class="item panel{% if not item.active %} is-hidden{% endif %}" id="item-{{ item.id }}">
+    <div class="item-thumb-wrap">
+      {% if item.image %}<img class="item-thumb" src="{{ item.image }}" alt="">{% endif %}
+      <span class="item-icon accent-{{ item.accent }}">{{ icon(item.icon) }}</span>
+    </div>
+    <div class="item-body">
+      <div class="item-top"><span class="pos">{{ item.title }}</span>{% if not item.active %}<span class="status status-lost">Hidden</span>{% endif %}</div>
+      <p class="muted">{{ item.description }}</p>
+      <div class="item-links">
+        <a class="a-btn a-btn-purple a-btn-sm" href="{{ url_for('admin.service_edit', item_id=item.id) }}">Edit page</a>
+        {% if item.active %}<a class="a-btn a-btn-ghost a-btn-sm" href="{{ url_for('site.service', slug=item.slug) }}" target="_blank" rel="noopener">View on website &#8599;</a>{% endif %}
+      </div>
+      {{ item_actions('services', item, loop.first, loop.last) }}
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endfor %}
+{% endblock %}

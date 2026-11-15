@@ -1,0 +1,131 @@
+{#- Layout shared by every public page: top bar, menu, footer and WhatsApp button. -#}
+{%- from "site/_macros.html" import arrow, phone_icon, mail_icon, pin_icon -%}
+{%- set is_home = request.endpoint == 'site.index' -%}
+{%- set home = '' if is_home else '/' -%}{#- section links point back to the home page from other pages -#}
+<!doctype html>
+<html lang="en-KE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KF 4Fortken Holdings Ltd | Cleaning, Fumigation &amp; Facility Services{% endblock %}</title>
+  <meta name="description" content="{% block description %}KF 4Fortken Holdings Ltd provides professional cleaning, fumigation, garbage collection, general supplies and allied facility management solutions in Kenya.{% endblock %}">
+  <meta name="theme-color" content="#462461">
+  <meta property="og:title" content="KF 4Fortken Holdings Ltd">
+  <meta property="og:description" content="Professional cleaning, fumigation, garbage collection, general supplies and facility management solutions in Kenya.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/assets/logo/logo-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script nonce="{{ csp_nonce }}">document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="topbar">
+    <div class="wrap">
+      <span class="topbar-tag">{{ settings.address }}</span>
+      <div class="topbar-group">
+        <a href="tel:{{ settings.phone1|tel }}">{{ settings.phone1 }}</a>
+        {% if settings.phone2 %}<a href="tel:{{ settings.phone2|tel }}">{{ settings.phone2 }}</a>{% endif %}
+        {% if wa %}<a class="topbar-wa" href="{{ wa }}" target="_blank" rel="noopener">{{ social_icon('whatsapp') }} {{ settings.whatsapp }}</a>{% endif %}
+        <a href="mailto:{{ settings.email }}">{{ settings.email }}</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="{{ '#home' if is_home else '/' }}" aria-label="KF 4Fortken Holdings Ltd, home">
+        <img src="/assets/logo/logo.svg" alt="KF 4Fortken Holdings Ltd" width="468" height="132">
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <ul class="nav-list">
+          <li><a href="{{ home }}#about">About</a></li>
+          <li><a href="{{ home }}#services">Services</a></li>
+          <li><a href="{{ home }}#objectives">Why Us</a></li>
+          <li><a href="{{ home }}#culture">Culture</a></li>
+          {% if testimonials %}<li><a href="{{ home }}#testimonials">Testimonials</a></li>{% endif %}
+          <li class="nav-contact">
+            <button class="nav-drop-toggle{% if request.endpoint == 'site.contact' %} is-current{% endif %}" type="button" aria-expanded="false" aria-controls="contact-menu">Contact
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="nav-drop" id="contact-menu">
+              <ul class="drop-list">
+                <li><a href="tel:{{ settings.phone1|tel }}">{{ phone_icon() }}<span><small>Call us</small>{{ settings.phone1 }}</span></a></li>
+                {% if settings.phone2 %}<li><a href="tel:{{ settings.phone2|tel }}">{{ phone_icon() }}<span><small>Or call</small>{{ settings.phone2 }}</span></a></li>{% endif %}
+                {% if wa %}<li><a class="drop-wa" href="{{ wa }}" target="_blank" rel="noopener">{{ social_icon('whatsapp') }}<span><small>WhatsApp</small>{{ settings.whatsapp }}</span></a></li>{% endif %}
+                <li><a href="mailto:{{ settings.email }}">{{ mail_icon() }}<span><small>Email</small>{{ settings.email }}</span></a></li>
+                {% if settings.address %}<li><a href="{{ settings.address|maps_url }}" target="_blank" rel="noopener">{{ pin_icon() }}<span><small>Office</small>{{ settings.address }}</span></a></li>{% endif %}
+              </ul>
+              {% if socials %}
+              <ul class="drop-socials" aria-label="Follow us">
+                {% for key in socials %}<li><a href="{{ settings[key] }}" target="_blank" rel="noopener">{{ social_icon(key) }} {{ SOCIAL_LABELS[key].split(' (')[0] }}</a></li>{% endfor %}
+              </ul>
+              {% endif %}
+              <a class="drop-all" href="{{ url_for('site.contact') }}">See the contact page {{ arrow() }}</a>
+            </div>
+          </li>
+          <li><a class="btn btn-gold" href="#contact">Request a Service</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% block main %}{% endblock %}
+  </main>
+
+  <footer class="site-footer crenel-top">
+    <div class="wrap footer-grid">
+      <div class="footer-about">
+        <img class="footer-logo" src="/assets/logo/logo-light.svg" alt="KF 4Fortken Holdings Ltd" width="468" height="132" loading="lazy">
+        <p>Integrated environmental and facility support services, guided by integrity, openness, accountability and trust.</p>
+        {% if socials %}
+        <ul class="socials" aria-label="Follow us">
+          {% for key in socials %}<li><a href="{{ settings[key] }}" target="_blank" rel="noopener" aria-label="{{ SOCIAL_LABELS[key] }}">{{ social_icon(key) }}</a></li>{% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a href="{{ home }}#about">About</a></li>
+          <li><a href="{{ home }}#objectives">Why Us</a></li>
+          <li><a href="{{ home }}#culture">Culture</a></li>
+          {% if testimonials %}<li><a href="{{ home }}#testimonials">Testimonials</a></li>{% endif %}
+          <li><a href="{{ url_for('site.contact') }}">Contact</a></li>
+        </ul>
+      </div>
+      {% for key, info, items in categories %}
+      <div>
+        <h3>{{ info.label }}</h3>
+        <ul>
+          {% for s in items %}<li><a href="{{ url_for('site.service', slug=s.slug) }}">{{ s.title }}</a></li>{% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="tel:{{ settings.phone1|tel }}">{{ settings.phone1 }}</a></li>
+          {% if settings.phone2 %}<li><a href="tel:{{ settings.phone2|tel }}">{{ settings.phone2 }}</a></li>{% endif %}
+          {% if wa %}<li><a href="{{ wa }}" target="_blank" rel="noopener">WhatsApp: {{ settings.whatsapp }}</a></li>{% endif %}
+          <li><a href="mailto:{{ settings.email }}">{{ settings.email }}</a></li>
+          {% if settings.address %}<li>{{ settings.address }}</li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <div class="wrap footer-base-row"><span>&copy; {{ year }} KF 4Fortken Holdings Ltd. All rights reserved.</span><span class="credit">Fumigation photo: <a href="https://www.flickr.com/photos/mtaphotos/50047425553/">MTAPhotos</a>, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></div>
+    </div>
+  </footer>
+
+  {% if wa %}
+  <a class="wa-float" href="{{ wa }}" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">{{ social_icon('whatsapp') }}<span>Chat with us</span></a>
+  {% endif %}
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Hero Slides{% endblock %}
+{% block content %}
+<p class="lead">These photos fade in turn at the top of the home page. Use wide, landscape photos at least 1200 pixels across; they are resized automatically for phones.</p>
+
+<details class="panel add-panel"{% if not items %} open{% endif %}>
+  <summary>+ Add a slide</summary>
+  <form method="post" action="{{ url_for('admin.slide_create') }}" enctype="multipart/form-data">{{ csrf() }}
+    <div class="form-row">
+      <label class="a-field">Caption <small>shown in the corner, e.g. "Office Cleaning"</small>
+        <input name="caption" maxlength="60" required>
+      </label>
+      <label class="a-field">Photo
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" required data-preview>
+      </label>
+    </div>
+    <img class="preview" alt="" hidden>
+    <button class="a-btn a-btn-gold" type="submit">Add slide</button>
+  </form>
+</details>
+
+<ol class="item-list">
+  {% for item in items %}
+  <li class="item panel{% if not item.active %} is-hidden{% endif %}" id="item-{{ item.id }}">
+    <img class="item-thumb wide" src="{{ item.image_small or item.image }}" alt="">
+    <div class="item-body">
+      <div class="item-top"><span class="pos">Slide {{ loop.index }}</span>{% if not item.active %}<span class="status status-lost">Hidden</span>{% endif %}</div>
+      <form method="post" action="{{ url_for('admin.slide_update', item_id=item.id) }}" enctype="multipart/form-data">{{ csrf() }}
+        <div class="form-row">
+          <label class="a-field">Caption <input name="caption" value="{{ item.caption }}" maxlength="60" required></label>
+          <label class="a-field">Replace photo <small>optional</small>
+            <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-preview></label>
+        </div>
+        <img class="preview" alt="" hidden>
+        <button class="a-btn a-btn-purple a-btn-sm" type="submit">Save changes</button>
+      </form>
+      {{ item_actions('slides', item, loop.first, loop.last) }}
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endblock %}

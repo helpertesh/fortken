@@ -1,0 +1,100 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes %}
+{% block title %}{{ s.title }}{% endblock %}
+{% block head_actions %}
+<div class="head-buttons">
+  <a class="a-btn a-btn-ghost" href="{{ url_for('admin.services') }}">&larr; All services</a>
+  {% if s.active %}<a class="a-btn a-btn-gold" href="{{ url_for('site.service', slug=s.slug) }}" target="_blank" rel="noopener">View page &#8599;</a>{% endif %}
+</div>
+{% endblock %}
+{%- macro section_fields(sec=None) -%}
+<label class="a-field">Section title <input name="title" value="{{ sec.title if sec else '' }}" maxlength="100" required placeholder="e.g. Post-Construction Cleaning"></label>
+<label class="a-field">Text <small>leave an empty line between paragraphs</small>
+  <textarea name="body" rows="5" maxlength="4000">{{ sec.body if sec else '' }}</textarea></label>
+<div class="form-row">
+  <label class="a-field">List heading <small>optional, e.g. "What we deal with"</small>
+    <input name="points_title" value="{{ sec.points_title if sec else '' }}" maxlength="60"></label>
+  <label class="a-field">{{ 'Replace photo' if sec and sec.image else 'Photo' }} <small>optional</small>
+    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-preview></label>
+</div>
+<label class="a-field">List items <small>one per line</small>
+  <textarea name="points" rows="4" maxlength="2000">{{ sec.points if sec else '' }}</textarea></label>
+<label class="a-field">Photo description <small>for screen readers and Google</small>
+  <input name="image_alt" value="{{ sec.image_alt if sec else '' }}" maxlength="150"></label>
+<img class="preview" alt="" hidden>
+{%- endmacro -%}
+{% block content %}
+<p class="lead">Page address: <code>/services/{{ s.slug }}</code>.{% if not s.active %} <strong>This service is hidden from the website.</strong>{% endif %}</p>
+
+<form class="panel" method="post" action="{{ url_for('admin.service_update', item_id=s.id) }}" enctype="multipart/form-data">{{ csrf() }}
+  <h2 class="sub">Card and page header</h2>
+  <div class="edit-grid">
+    <div>
+      <div class="form-row">
+        <label class="a-field">Title <input name="title" value="{{ s.title }}" maxlength="80" required></label>
+        <label class="a-field">Division
+          <select name="category">{% for key, info in CATEGORIES.items() %}<option value="{{ key }}"{% if s.category == key %} selected{% endif %}>{{ info.title }}</option>{% endfor %}</select>
+        </label>
+      </div>
+      <label class="a-field">Short description <small>shown on the card and under the page title</small>
+        <textarea name="description" rows="2" maxlength="300" required>{{ s.description }}</textarea></label>
+      <div class="form-row form-row-3">
+        <label class="a-field">Tags <small>comma separated</small><input name="tags" value="{{ s.tags }}" maxlength="150"></label>
+        <label class="a-field">Icon
+          <select name="icon">{% for key, val in ICONS.items() %}<option value="{{ key }}"{% if s.icon == key %} selected{% endif %}>{{ val[0] }}</option>{% endfor %}</select>
+        </label>
+        <label class="a-field">Icon colour
+          <select name="accent">{% for key, label in ACCENTS.items() %}<option value="{{ key }}"{% if s.accent == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        </label>
+      </div>
+    </div>
+    <div>
+      {% if s.image %}<img class="edit-photo" src="{{ s.image }}" alt="">{% endif %}
+      <label class="a-field">Replace photo <small>optional, cropped to 3:2</small>
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-preview></label>
+      <img class="preview" alt="" hidden>
+      <label class="a-field">Photo description <input name="image_alt" value="{{ s.image_alt }}" maxlength="150"></label>
+    </div>
+  </div>
+
+  <h2 class="sub">Overview on the service page</h2>
+  <label class="a-field">Overview text <small>leave an empty line between paragraphs</small>
+    <textarea name="details" rows="6" maxlength="4000">{{ s.details }}</textarea></label>
+  <label class="a-field">What's included <small>one item per line; shown as a checklist</small>
+    <textarea name="includes" rows="6" maxlength="2000">{{ s.includes }}</textarea></label>
+  <button class="a-btn a-btn-gold" type="submit">Save service</button>
+</form>
+
+<h2 class="group-title">Page sections <span class="muted">sub-services shown with a photo, e.g. Post-Construction Cleaning</span></h2>
+<details class="panel add-panel"{% if not sections %} open{% endif %}>
+  <summary>+ Add a section</summary>
+  <form method="post" action="{{ url_for('admin.section_create', item_id=s.id) }}" enctype="multipart/form-data">{{ csrf() }}
+    {{ section_fields() }}
+    <button class="a-btn a-btn-gold" type="submit">Add section</button>
+  </form>
+</details>
+
+<ol class="item-list">
+  {% for sec in sections %}
+  <li class="item panel" id="section-{{ sec.id }}">
+    {% if sec.image %}<img class="item-thumb" src="{{ sec.image }}" alt="">{% endif %}
+    <div class="item-body">
+      <div class="item-top"><span class="pos">{{ loop.index }}. {{ sec.title }}</span></div>
+      <form method="post" action="{{ url_for('admin.section_update', section_id=sec.id) }}" enctype="multipart/form-data">{{ csrf() }}
+        {{ section_fields(sec) }}
+        {% if sec.image %}<label class="check-row"><input type="checkbox" name="remove_image" value="1"> Remove the photo</label>{% endif %}
+        <button class="a-btn a-btn-purple a-btn-sm" type="submit">Save section</button>
+      </form>
+      <div class="item-actions">
+        <form method="post" action="{{ url_for('admin.section_move', section_id=sec.id, direction='up') }}">{{ csrf() }}
+          <button class="icon-btn" type="submit" title="Move up" aria-label="Move up"{% if loop.first %} disabled{% endif %}>&#8593;</button></form>
+        <form method="post" action="{{ url_for('admin.section_move', section_id=sec.id, direction='down') }}">{{ csrf() }}
+          <button class="icon-btn" type="submit" title="Move down" aria-label="Move down"{% if loop.last %} disabled{% endif %}>&#8595;</button></form>
+        <form method="post" action="{{ url_for('admin.section_delete', section_id=sec.id) }}" data-confirm="Delete this section permanently?">{{ csrf() }}
+          <button class="a-btn a-btn-danger a-btn-sm" type="submit">Delete section</button></form>
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endblock %}

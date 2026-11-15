@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Enquiries{% endblock %}
+{% block head_actions %}
+<a class="a-btn a-btn-ghost" href="{{ url_for('admin.enquiry_export', **filters) }}">Export to Excel (CSV)</a>
+{% endblock %}
+{% block content %}
+<form class="filters panel" method="get">
+  <label class="a-field">Search
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Name, phone, email or message">
+  </label>
+  <label class="a-field">Status
+    <select name="status">
+      <option value="">All statuses</option>
+      {% for key, label in STATUSES.items() %}<option value="{{ key }}"{% if filters.status == key %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="a-field">Service
+    <select name="service">
+      <option value="">All services</option>
+      {% for s in services %}<option{% if filters.service == s %} selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <div class="filter-buttons">
+    <button class="a-btn a-btn-purple" type="submit">Filter</button>
+    {% if filters.q or filters.status or filters.service %}<a class="a-btn a-btn-ghost" href="{{ url_for('admin.enquiry_list') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<p class="count">{{ total }} enquir{{ 'y' if total == 1 else 'ies' }}</p>
+{% if rows %}
+<div class="panel table-panel">
+  <table class="a-table">
+    <thead><tr><th>Received</th><th>Name</th><th>Phone</th><th>Service</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for e in rows %}
+      <tr>
+        <td data-label="Received">{{ e.created_at|local_time }}</td>
+        <td data-label="Name"><a class="row-link" href="{{ url_for('admin.enquiry_detail', enquiry_id=e.id) }}">{{ e.name }}</a></td>
+        <td data-label="Phone"><a href="tel:{{ e.phone|tel }}">{{ e.phone }}</a></td>
+        <td data-label="Service">{{ e.service or '-' }}</td>
+        <td data-label="Status"><span class="status status-{{ e.status }}">{{ STATUSES[e.status] }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page > 1 %}<a class="a-btn a-btn-ghost a-btn-sm" href="{{ url_for('admin.enquiry_list', page=page - 1, **filters) }}">&larr; Newer</a>{% endif %}
+  <span>Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a class="a-btn a-btn-ghost a-btn-sm" href="{{ url_for('admin.enquiry_list', page=page + 1, **filters) }}">Older &rarr;</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="empty panel">No enquiries match.</p>
+{% endif %}
+{% endblock %}

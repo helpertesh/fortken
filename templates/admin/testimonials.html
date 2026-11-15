@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Testimonials{% endblock %}
+{% block content %}
+<p class="lead">Client quotes shown on the website. Only publish quotes the client has agreed to.</p>
+
+<details class="panel add-panel"{% if not items %} open{% endif %}>
+  <summary>+ Add a testimonial</summary>
+  <form method="post" action="{{ url_for('admin.testimonial_create') }}">{{ csrf() }}
+    <label class="a-field">Quote <textarea name="quote" rows="4" maxlength="1000" required></textarea></label>
+    <label class="a-field">Client <small>e.g. "Links Garden, Nyali"</small> <input name="author" maxlength="100" required></label>
+    <button class="a-btn a-btn-gold" type="submit">Add testimonial</button>
+  </form>
+</details>
+
+<ol class="item-list">
+  {% for item in items %}
+  <li class="item panel{% if not item.active %} is-hidden{% endif %}" id="item-{{ item.id }}">
+    <div class="item-body">
+      <div class="item-top"><span class="pos">{{ item.author }}</span>{% if not item.active %}<span class="status status-lost">Hidden</span>{% endif %}</div>
+      <form method="post" action="{{ url_for('admin.testimonial_update', item_id=item.id) }}">{{ csrf() }}
+        <label class="a-field">Quote <textarea name="quote" rows="3" maxlength="1000" required>{{ item.quote }}</textarea></label>
+        <label class="a-field">Client <input name="author" value="{{ item.author }}" maxlength="100" required></label>
+        <button class="a-btn a-btn-purple a-btn-sm" type="submit">Save changes</button>
+      </form>
+      {{ item_actions('testimonials', item, loop.first, loop.last) }}
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endblock %}

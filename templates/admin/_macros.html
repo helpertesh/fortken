@@ -1,0 +1,21 @@
+{#- Shared admin macros. Import with: {% from "admin/_macros.html" import csrf, flashes, item_actions %} -#}
+{%- macro flashes() -%}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+<div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>
+{% endfor %}
+{% endwith %}
+{%- endmacro -%}
+{%- macro csrf() -%}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{%- endmacro -%}
+{%- macro item_actions(kind, item, first, last) -%}
+<div class="item-actions">
+  <form method="post" action="{{ url_for('admin.item_move', kind=kind, item_id=item.id, direction='up') }}">{{ csrf() }}
+    <button class="icon-btn" type="submit" title="Move up" aria-label="Move up"{% if first %} disabled{% endif %}>&#8593;</button></form>
+  <form method="post" action="{{ url_for('admin.item_move', kind=kind, item_id=item.id, direction='down') }}">{{ csrf() }}
+    <button class="icon-btn" type="submit" title="Move down" aria-label="Move down"{% if last %} disabled{% endif %}>&#8595;</button></form>
+  <form method="post" action="{{ url_for('admin.item_toggle', kind=kind, item_id=item.id) }}">{{ csrf() }}
+    <button class="a-btn a-btn-ghost a-btn-sm" type="submit">{{ 'Hide from website' if item.active else 'Show on website' }}</button></form>
+  <form method="post" action="{{ url_for('admin.item_delete', kind=kind, item_id=item.id) }}" data-confirm="Delete this permanently? This can't be undone.">{{ csrf() }}
+    <button class="a-btn a-btn-danger a-btn-sm" type="submit">Delete</button></form>
+</div>
+{%- endmacro -%}

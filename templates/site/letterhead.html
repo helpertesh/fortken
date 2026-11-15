@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-KE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Letterhead | KF 4Fortken Holdings Ltd</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/logo/logo-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    @page { size: A4; margin: 0; }
+    body { background: var(--purple-950); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 20px; padding: 16px; color: var(--gold-100); font-size: 0.9rem; }
+    .toolbar .btn { min-height: 44px; padding: 8px 22px; }
+    .sheet-scroll { overflow-x: auto; padding: 0 16px 32px; }
+    .sheet {
+      position: relative; display: flex; flex-direction: column; overflow: hidden;
+      width: 210mm; height: 297mm; margin-inline: auto;
+      background: #fff; color: var(--ink); font-size: 11pt; line-height: 1.55;
+    }
+    .lh-band { height: 7mm; flex: none; background: var(--gold-field); }
+    .lh-merlons { height: 3.5mm; flex: none; background: repeating-linear-gradient(90deg, var(--gold-400) 0 8mm, transparent 8mm 14mm); }
+    .lh-head { display: flex; align-items: center; justify-content: space-between; gap: 8mm; padding: 6mm 18mm 5mm; }
+    .lh-head img { width: auto; height: 22mm; }
+    .lh-contact { color: var(--purple-900); font-size: 9.5pt; font-weight: 600; line-height: 1.6; text-align: right; }
+    .lh-contact a { text-decoration: none; }
+    .lh-rule { height: 0.7mm; flex: none; margin-inline: 18mm; background: var(--gold-field); }
+    .lh-body { position: relative; flex: 1; min-height: 0; padding: 9mm 18mm; outline: none; white-space: pre-wrap; }
+    .lh-body:empty::before { content: "Click here and type your letter, then press Print."; color: var(--muted); }
+    .lh-watermark { position: absolute; left: 50%; top: 53%; width: 95mm; opacity: 0.05; transform: translate(-50%, -50%); pointer-events: none; }
+    .lh-foot { flex: none; padding: 3.5mm 18mm; background: var(--purple-900); color: var(--gold-200); font-size: 8.5pt; font-weight: 600; text-align: center; }
+    .lh-foot-bar { display: flex; height: 2mm; flex: none; }
+    .lh-foot-bar i { flex: 1; background: var(--gold-400); }
+    .lh-foot-bar i:nth-child(2) { flex: none; width: 18mm; background: var(--green); }
+    .lh-foot-bar i:nth-child(3) { flex: none; width: 18mm; background: var(--blue); }
+    @media print {
+      html, body { width: 210mm; height: 297mm; background: #fff; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .toolbar { display: none; }
+      .sheet-scroll { overflow: visible; padding: 0; }
+      .lh-body:empty::before { content: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span>Type in the page below, then print or save as PDF.</span>
+    <button class="btn btn-gold" type="button" id="print-btn">Print / Save PDF</button>
+  </div>
+  <div class="sheet-scroll">
+    <div class="sheet">
+      <div class="lh-band"></div>
+      <div class="lh-merlons"></div>
+      <header class="lh-head">
+        <img src="/assets/logo/logo.svg" alt="KF 4Fortken Holdings Ltd">
+        <div class="lh-contact">
+          <a href="tel:{{ settings.phone1|tel }}">{{ settings.phone1 }}</a><br>
+          {% if settings.phone2 %}<a href="tel:{{ settings.phone2|tel }}">{{ settings.phone2 }}</a><br>{% endif %}
+          {% if settings.whatsapp %}WhatsApp: {{ settings.whatsapp }}<br>{% endif %}
+          <a href="mailto:{{ settings.email }}">{{ settings.email }}</a><br>
+          {{ settings.address }}
+        </div>
+      </header>
+      <div class="lh-rule"></div>
+      <img class="lh-watermark" src="/assets/logo/logo-mark.svg" alt="">
+      <div class="lh-body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Letter body" spellcheck="true"></div>
+      <div class="lh-foot-bar"><i></i><i></i><i></i></div>
+      <footer class="lh-foot">Professional Cleaning &nbsp;&bull;&nbsp; Fumigation &nbsp;&bull;&nbsp; Garbage Collection &nbsp;&bull;&nbsp; General Supplies &nbsp;&bull;&nbsp; Facility Management</footer>
+    </div>
+  </div>
+  <script nonce="{{ csp_nonce }}">document.getElementById('print-btn').addEventListener('click', function () { window.print(); });</script>
+</body>
+</html>

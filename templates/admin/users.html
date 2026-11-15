@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<p class="lead"><strong>Owners</strong> can manage everything. <strong>Staff</strong> can only view and update enquiries.</p>
+
+<details class="panel add-panel">
+  <summary>+ Add a user</summary>
+  <form method="post" action="{{ url_for('admin.user_create') }}">{{ csrf() }}
+    <div class="form-row">
+      <label class="a-field">Full name <input name="name" maxlength="100" required></label>
+      <label class="a-field">Email <input type="email" name="email" maxlength="200" required autocomplete="off"></label>
+    </div>
+    <div class="form-row">
+      <label class="a-field">Password <small>at least 10 characters</small>
+        <input type="password" name="password" minlength="10" required autocomplete="new-password"></label>
+      <label class="a-field">Role
+        <select name="role">{% for key, label in ROLES.items() %}<option value="{{ key }}"{% if key == 'staff' %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <button class="a-btn a-btn-gold" type="submit">Create account</button>
+  </form>
+</details>
+
+<ul class="item-list">
+  {% for u in users %}
+  <li class="item panel">
+    <div class="item-body">
+      <div class="item-top"><span class="pos">{{ u.name }}{% if u.id == g.user.id %} (you){% endif %}</span><span class="muted">{{ u.email }}</span></div>
+      <div class="user-forms">
+        <form class="inline-form" method="post" action="{{ url_for('admin.user_role', user_id=u.id) }}">{{ csrf() }}
+          <label class="a-field">Role
+            <select name="role">{% for key, label in ROLES.items() %}<option value="{{ key }}"{% if u.role == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+          </label>
+          <button class="a-btn a-btn-ghost a-btn-sm" type="submit">Change role</button>
+        </form>
+        <form class="inline-form" method="post" action="{{ url_for('admin.user_password', user_id=u.id) }}">{{ csrf() }}
+          <label class="a-field">New password
+            <input type="password" name="password" minlength="10" required autocomplete="new-password"></label>
+          <button class="a-btn a-btn-ghost a-btn-sm" type="submit">Reset password</button>
+        </form>
+        {% if u.id != g.user.id %}
+        <form method="post" action="{{ url_for('admin.user_delete', user_id=u.id) }}" data-confirm="Delete {{ u.name }}'s account?">{{ csrf() }}
+          <button class="a-btn a-btn-danger a-btn-sm" type="submit">Delete user</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

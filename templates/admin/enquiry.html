@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Enquiry from {{ e.name }}{% endblock %}
+{% block head_actions %}
+<a class="a-btn a-btn-ghost" href="{{ url_for('admin.enquiry_list') }}">&larr; All enquiries</a>
+{% endblock %}
+{% block content %}
+<div class="dash-grid">
+  <section class="panel">
+    <div class="panel-head"><h2>Details</h2><span class="status status-{{ e.status }}">{{ STATUSES[e.status] }}</span></div>
+    <dl class="details">
+      <dt>Received</dt><dd>{{ e.created_at|local_time }}</dd>
+      <dt>Service</dt><dd>{{ e.service or 'Not chosen' }}</dd>
+      <dt>Phone</dt><dd><a href="tel:{{ e.phone|tel }}">{{ e.phone }}</a></dd>
+      <dt>Email</dt><dd>{% if e.email %}<a href="mailto:{{ e.email }}">{{ e.email }}</a>{% else %}-{% endif %}</dd>
+    </dl>
+    <h3 class="sub">Message</h3>
+    <p class="message">{{ e.message }}</p>
+    <div class="contact-actions">
+      <a class="a-btn a-btn-purple" href="tel:{{ e.phone|tel }}">Call</a>
+      <a class="a-btn a-btn-ghost" href="https://wa.me/{{ e.phone|whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>
+      {% if e.email %}<a class="a-btn a-btn-ghost" href="mailto:{{ e.email }}?subject={{ ('Your request: ' ~ (e.service or 'KF 4Fortken'))|urlencode }}">Reply by email</a>{% endif %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Progress</h2></div>
+    <form class="inline-form" method="post" action="{{ url_for('admin.enquiry_status', enquiry_id=e.id) }}">{{ csrf() }}
+      <label class="a-field">Status
+        <select name="status">
+          {% for key, label in STATUSES.items() %}<option value="{{ key }}"{% if e.status == key %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <button class="a-btn a-btn-purple" type="submit">Update</button>
+    </form>
+
+    <h3 class="sub">Notes</h3>
+    {% if notes %}
+    <ul class="notes">
+      {% for n in notes %}
+      <li><p>{{ n.body }}</p><small>{{ n.author }} &middot; {{ n.created_at|local_time }}</small></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No notes yet. Record calls, site visits and quotes here so the whole team can see them.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('admin.enquiry_note', enquiry_id=e.id) }}">{{ csrf() }}
+      <label class="a-field">Add a note
+        <textarea name="body" rows="3" maxlength="2000" placeholder="e.g. Called, site visit booked for Tuesday 10am" required></textarea>
+      </label>
+      <button class="a-btn a-btn-gold" type="submit">Save note</button>
+    </form>
+
+    {% if g.user.role == 'owner' %}
+    <form class="danger-zone" method="post" action="{{ url_for('admin.enquiry_delete', enquiry_id=e.id) }}" data-confirm="Delete this enquiry and its notes permanently?">{{ csrf() }}
+      <button class="a-btn a-btn-danger a-btn-sm" type="submit">Delete enquiry</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

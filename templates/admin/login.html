@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Sign in{% endblock %}
+{% block bare %}
+<div class="login-page">
+  <form class="login-card" method="post">
+    {{ csrf() }}
+    <img src="/assets/logo/logo.svg" alt="KF 4Fortken Holdings Ltd" width="468" height="132">
+    <h1>Admin sign in</h1>
+    {{ flashes() }}
+    {% if error %}<div class="flash flash-error" role="alert">{{ error }}</div>{% endif %}
+    <label class="a-field">Email
+      <input type="email" name="email" value="{{ email }}" autocomplete="username" required autofocus>
+    </label>
+    <label class="a-field">Password
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button class="a-btn a-btn-gold" type="submit">Sign in</button>
+    <a class="login-back" href="/">&larr; Back to the website</a>
+  </form>
+</div>
+{% endblock %}

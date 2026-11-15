@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}Contact &amp; Social Media{% endblock %}
+{% block content %}
+<p class="lead">Changes here update the website's top bar, contact section, footer and the letterhead at once.</p>
+<form class="panel narrow" method="post">{{ csrf() }}
+  {% set examples = {'instagram_url': 'https://www.instagram.com/yourpage', 'tiktok_url': 'https://www.tiktok.com/@yourpage',
+                     'x_url': 'https://x.com/yourpage', 'whatsapp': 'e.g. 0712 345 678'} %}
+  {% for key, label, type in fields %}
+  {% if key == 'instagram_url' %}<h2 class="sub" id="social">Social media links</h2>
+  <p class="hint">Paste the address of each profile page. Its logo appears in the website's contact section and footer once saved; leave a box empty to hide that logo.</p>{% endif %}
+  <label class="a-field">{% if key in SOCIAL_LABELS %}<span class="social-label">{{ social_icon(key) }} {{ label }}</span>{% else %}{{ label }}{% endif %}
+    <input type="{{ 'text' if type == 'url' else type }}"{% if type == 'url' %} inputmode="url"{% endif %} name="{{ key }}" value="{{ settings.get(key, '') }}" maxlength="200"{% if key in examples %} placeholder="{{ examples[key] }}"{% endif %}{% if key in ('phone1', 'email') %} required{% endif %}>
+  </label>
+  {% endfor %}
+  <button class="a-btn a-btn-gold" type="submit">Save contact details</button>
+</form>
+<p class="hint">The printable letterhead is at <a href="{{ url_for('site.letterhead') }}" target="_blank" rel="noopener">/letterhead</a>.</p>
+{% endblock %}

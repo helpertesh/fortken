@@ -1,0 +1,83 @@
+{% extends "site/base.html" %}
+{% from "site/_macros.html" import arrow, phone_icon, mail_icon, pin_icon, contact_form %}
+{% block title %}Contact Us | KF 4Fortken Holdings Ltd{% endblock %}
+{% block description %}Call, WhatsApp or email KF 4Fortken Holdings Ltd, or visit our office at {{ settings.address }}.{% endblock %}
+{% block main %}
+    <!-- Every contact detail here comes from the admin panel: Contact & Social Media. -->
+    <section class="page-hero">
+      <div class="wrap">
+        <p class="eyebrow">Contact us</p>
+        <h1>We're here to help.</h1>
+        <p class="hero-lead">Call, WhatsApp, email or visit our office. Choose whatever is easiest for you.</p>
+      </div>
+    </section>
+
+    <section class="section contact-page">
+      <div class="wrap">
+        <div class="contact-cards">
+          <article class="c-card">
+            <span class="c-icon">{{ phone_icon() }}</span>
+            <h2>Call us</h2>
+            <ul>
+              <li><a href="tel:{{ settings.phone1|tel }}">{{ settings.phone1 }}</a></li>
+              {% if settings.phone2 %}<li><a href="tel:{{ settings.phone2|tel }}">{{ settings.phone2 }}</a></li>{% endif %}
+            </ul>
+          </article>
+
+          {% if wa %}
+          <article class="c-card c-card-wa">
+            <span class="c-icon">{{ social_icon('whatsapp') }}</span>
+            <h2>WhatsApp</h2>
+            <ul><li><a href="{{ wa }}" target="_blank" rel="noopener">{{ settings.whatsapp }}</a></li></ul>
+            <a class="btn btn-wa" href="{{ wa }}" target="_blank" rel="noopener">Start a chat {{ arrow() }}</a>
+          </article>
+          {% endif %}
+
+          <article class="c-card">
+            <span class="c-icon">{{ mail_icon() }}</span>
+            <h2>Email</h2>
+            <ul><li><a href="mailto:{{ settings.email }}">{{ settings.email }}</a></li></ul>
+            <a class="btn btn-purple" href="mailto:{{ settings.email }}">Send an email {{ arrow() }}</a>
+          </article>
+
+          {% if socials %}
+          <article class="c-card">
+            <span class="c-icon c-icon-gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+            </span>
+            <h2>Follow us</h2>
+            <ul class="social-list">
+              {% for key in socials %}
+              <li><a href="{{ settings[key] }}" target="_blank" rel="noopener">{{ social_icon(key) }} {{ SOCIAL_LABELS[key] }}</a></li>
+              {% endfor %}
+            </ul>
+          </article>
+          {% endif %}
+        </div>
+
+        {% if settings.address %}
+        <div class="office">
+          <div class="office-copy">
+            <span class="c-icon">{{ pin_icon() }}</span>
+            <p class="eyebrow">Our office</p>
+            <h2>{{ settings.address }}</h2>
+            <p>Visit us during working hours, or call ahead and we'll be ready for you.</p>
+            <a class="btn btn-gold" href="{{ settings.address|maps_url }}" target="_blank" rel="noopener">Get directions {{ arrow() }}</a>
+          </div>
+          <iframe class="office-map" src="{{ settings.address|maps_embed }}" title="Map showing {{ settings.address }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="section contact crenel-top" id="contact">
+      <div class="wrap contact-grid">
+        <div class="contact-copy reveal">
+          <p class="eyebrow">Request a service</p>
+          <h2>Send us an enquiry.</h2>
+          <p>Tell us what you need and where, and we will get back to you, usually within one working day.</p>
+        </div>
+        {{ contact_form(settings, categories, sent, failed, page='contact') }}
+      </div>
+    </section>
+{% endblock %}

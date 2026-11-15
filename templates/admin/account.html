@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import csrf, flashes, item_actions %}
+{% block title %}My Account{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <dl class="details">
+    <dt>Name</dt><dd>{{ g.user.name }}</dd>
+    <dt>Email</dt><dd>{{ g.user.email }}</dd>
+    <dt>Role</dt><dd>{{ ROLES[g.user.role] }}</dd>
+  </dl>
+</section>
+<form class="panel narrow" method="post">{{ csrf() }}
+  <h2 class="sub">Change password</h2>
+  <label class="a-field">Current password <input type="password" name="current_password" required autocomplete="current-password"></label>
+  <label class="a-field">New password <small>at least 10 characters</small>
+    <input type="password" name="new_password" minlength="10" required autocomplete="new-password"></label>
+  <label class="a-field">Repeat new password <input type="password" name="confirm_password" minlength="10" required autocomplete="new-password"></label>
+  <button class="a-btn a-btn-gold" type="submit">Change password</button>
+</form>
+{% endblock %}

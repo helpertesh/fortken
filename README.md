@@ -1,0 +1,84 @@
+# KF 4Fortken Holdings Ltd: website and admin panel
+
+A Flask (Python) app that serves the public website and an admin panel at `/admin`.
+Content is stored in SQLite (`instance/fortken.db`), so there is no database server to install.
+
+## Folder layout
+
+```
+app/            Python code
+  __init__.py   app setup and configuration
+  site.py       public pages and the enquiry form endpoint (POST /enquiry)
+  admin.py      admin panel routes
+  auth.py       accounts, sign-in, owner/staff roles, lockout
+  content.py    slides, services (two divisions), service page sections, testimonials, settings
+  seed_content.py  starting text for the service pages (loaded once; then edited in the admin)
+  enquiries.py  service requests
+  images.py     resizes uploaded photos (Pillow)
+  mail.py       email alerts
+  db.py         database schema and starting content
+templates/      HTML pages (site/ and admin/)
+static/         CSS, JS, logo and images; uploads go in static/uploads/
+instance/       database and secret key (created automatically, never commit)
+```
+
+## First-time setup (Windows)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env        # then edit .env
+flask --app app create-admin  # asks for name, email and password
+```
+
+## Running it
+
+```powershell
+python run.py                      # http://127.0.0.1:8000  and  /admin
+flask --app app run --debug        # development: reloads when code changes
+```
+
+The first run creates the database with the current slides, services, testimonials and contact details.
+
+## What the admin can do
+
+| Section | Owner | Staff |
+|---|---|---|
+| Dashboard (enquiry counts, by service and status) | yes | yes |
+| Enquiries: view, search, filter, set status, add notes, export CSV, call/WhatsApp/email | yes | yes |
+| Delete enquiries | yes | no |
+| Hero slides: add, replace photo, caption, reorder, hide, delete | yes | no |
+| Services: add, edit card and full service page (overview, "What's included", sections with photos), move between divisions, reorder, hide, delete | yes | no |
+| Testimonials: add, edit, reorder, hide, delete | yes | no |
+| Contact details (updates header, footer, contact section and letterhead) | yes | no |
+| Users: add, change role, reset password, delete | yes | no |
+| My account: change own password | yes | yes |
+
+Photos are resized on upload: slides to 1920px and 960px wide, service photos cropped to 900x600.
+
+## Email alerts
+
+New enquiries are emailed to the "Send new enquiry alerts to" address in Contact Details, and visitors who
+leave an email get a confirmation. Fill in the `SMTP_*` values in `.env`; until then, emails are only
+written to the server log. Use a sending service (Brevo, Mailgun, Amazon SES) for reliable delivery.
+
+## Security built in
+
+- Passwords hashed (scrypt); minimum 10 characters
+- Account locked for 15 minutes after 5 wrong passwords; failed sign-ins also limited per IP
+- Changing a password or role signs that user out on other devices
+- CSRF tokens on every admin form; Content Security Policy and other security headers
+- Enquiry form: hidden spam trap field and 5 requests per 15 minutes per IP
+- Uploads must be real JPG/PNG/WebP images (checked by opening them), max 10 MB
+
+## Going live
+
+1. Get a Linux VPS or a Python host, and a `.co.ke` domain.
+2. Copy the project (not `.venv`, `instance/` or `.env`), then run the setup steps above.
+3. In `.env` set `APP_ENV=production`, a long `SECRET_KEY`, the SMTP settings and `TRUST_PROXY=1`.
+4. Run `python run.py` (or `waitress-serve --call app:create_app`) as a service behind Nginx with HTTPS
+   (Let's Encrypt). Production mode requires HTTPS because it sends cookies over secure connections only.
+5. Back up `instance/fortken.db` and `static/uploads/` daily.
+
+The rate limits are kept in memory, so run a single server process.
