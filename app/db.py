@@ -261,6 +261,23 @@ def _fill_slugs(db):
             db.execute("UPDATE services SET slug = ? WHERE id = ?", (slug, row["id"]))
 
 
+def _hibiscus_project(db):
+    """One-time: add the Hibiscus Homes project to the top of the Property Management page."""
+    if db.execute("SELECT 1 FROM settings WHERE key = 'content_v3'").fetchone():
+        return
+    from .seed_content import HIBISCUS_SECTION as sec
+
+    service = db.execute("SELECT id FROM services WHERE slug = ?", (sec["service_slug"],)).fetchone()
+    if service:
+        top = db.execute("SELECT COALESCE(MIN(position), 1) - 1 FROM service_sections WHERE service_id = ?",
+                         (service["id"],)).fetchone()[0]
+        db.execute("INSERT INTO service_sections (service_id, title, body, points_title, points, image, image_alt, position)"
+                   " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   (service["id"], sec["title"], sec["body"], sec["points_title"], sec["points"], sec["image"],
+                    sec["image_alt"], top))
+    db.execute("INSERT INTO settings (key, value) VALUES ('content_v3', '1')")
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     with app.app_context():
@@ -271,4 +288,5 @@ def init_app(app):
         _seed(db)
         _service_pages_update(db)
         _fill_slugs(db)
+        _hibiscus_project(db)
         db.commit()

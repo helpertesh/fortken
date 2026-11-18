@@ -2,6 +2,14 @@
    KF 4Fortken Holdings Ltd
    Brand tokens are shared with letterhead.html. Change a colour here once.
    ========================================================================== */
+/* The site is designed in light colours only. This stops phone browsers that force
+   "dark mode" on websites from recolouring it (gold turning brown, white turning black). */
+:root { color-scheme: only light; }
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: only light; }
+  html, body { background: var(--gold-50); color: var(--ink); }
+}
+
 :root {
   --gold-50: #fcf8ef;
   --gold-100: #f6ecd3;
@@ -143,39 +151,30 @@ h3 { font-size: 1.2rem; line-height: 1.3; font-weight: 800; color: var(--purple-
 .nav-list > li > a[aria-current]::after { transform: scaleX(1); }
 .nav-list .btn { min-height: 44px; padding: 8px 22px; }
 
-.nav-toggle {
-  display: none; width: 46px; height: 46px; flex: none; padding: 0;
-  border: 0; border-radius: 12px; background: var(--gold-field); color: var(--purple-950); cursor: pointer;
-}
-.nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
-  display: block; width: 22px; height: 2.5px; border-radius: 2px; background: currentColor;
-  transition: transform 0.25s ease, background-color 0.25s ease;
-}
-.nav-toggle span { position: relative; margin-inline: auto; }
-.nav-toggle span::before, .nav-toggle span::after { content: ""; position: absolute; left: 0; }
-.nav-toggle span::before { top: -7px; }
-.nav-toggle span::after { top: 7px; }
-.nav-toggle[aria-expanded="true"] span { background: transparent; }
-.nav-toggle[aria-expanded="true"] span::before { transform: translateY(7px) rotate(45deg); }
-.nav-toggle[aria-expanded="true"] span::after { transform: translateY(-7px) rotate(-45deg); }
-
+/* On phones the menu keeps the laptop layout: logo and "Request a Service" on top,
+   the links in one row underneath that scrolls sideways. */
+.header-cta { display: none; }
 @media (max-width: 900px) {
-  :root { --header-h: 68px; }
+  :root { --header-h: 114px; }
+  .header-row { flex-wrap: wrap; gap: 0 12px; min-height: 0; padding-top: 10px; }
   .brand img { height: 46px; }
-  .nav-toggle { display: block; }
-  .site-nav {
-    position: absolute; left: 0; right: 0; top: 100%;
-    max-height: calc(100vh - var(--header-h)); overflow-y: auto;
-    background: var(--gold-50); border-bottom: 3px solid var(--gold-400);
-    box-shadow: 0 24px 40px -24px rgba(70, 36, 97, 0.6);
-    visibility: hidden; opacity: 0; transform: translateY(-8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  .header-cta { display: inline-flex; min-height: 42px; padding: 8px 18px; font-size: 0.88rem; }
+  .site-nav { position: relative; order: 3; width: calc(100% + 2 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); }
+  .site-nav::after {
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 36px; pointer-events: none;
+    background: linear-gradient(90deg, rgba(252, 248, 239, 0), var(--gold-50));
   }
-  .site-nav.is-open { visibility: visible; opacity: 1; transform: none; }
-  .nav-list { flex-direction: column; align-items: stretch; gap: 0; padding: 8px var(--gutter) 20px; }
-  .nav-list > li > a:not(.btn) { display: block; padding-block: 14px; border-bottom: 1px solid var(--line); font-size: 1.05rem; }
-  .nav-list > li > a:not(.btn)::after { display: none; }
-  .nav-list .btn { display: flex; margin-top: 16px; min-height: 50px; }
+  .nav-list {
+    flex-wrap: nowrap; gap: 22px; padding: 2px var(--gutter) 4px;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .nav-list::-webkit-scrollbar { display: none; }
+  .nav-list > li { flex: none; }
+  .nav-list > li > a:not(.btn) { white-space: nowrap; padding-block: 10px; }
+  .nav-cta { display: none; }
+}
+@media (max-width: 380px) {
+  .cta-extra { display: none; }
 }
 
 /* Hero slider ------------------------------------------------------------ */
@@ -569,15 +568,19 @@ body:has(.wa-float) .footer-base { padding-bottom: 92px; }
 .drop-all { display: inline-flex; align-items: center; gap: 6px; margin: 8px 10px 4px; color: var(--purple-700); font-weight: 800; font-size: 0.9rem; }
 .drop-all svg { width: 16px; height: 16px; }
 @media (max-width: 900px) {
-  .nav-drop-toggle { width: 100%; justify-content: space-between; padding-block: 14px; border-bottom: 1px solid var(--line); font-size: 1.05rem; }
-  .nav-drop-toggle::after { display: none; }
-  .nav-drop { position: static; width: auto; padding: 6px 0 10px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; box-shadow: none; transform: none; }
+  /* The link row scrolls sideways, so the dropdown hangs from the whole menu bar instead. */
+  .nav-contact { position: static; }
+  .nav-drop-toggle { white-space: nowrap; padding-block: 10px; }
+  .nav-drop {
+    top: 100%; left: var(--gutter); right: var(--gutter); width: auto; margin-top: 2px;
+    max-height: calc(100vh - 220px); overflow-y: auto; transform: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
   .nav-drop::before { display: none; }
-  .drop-list a { padding-inline: 4px; }
 }
 
 /* Services: division tabs and card actions ------------------------------------ */
-.svc-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: -12px 0 22px; }
+.svc-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: -12px 0 28px; }
 .svc-tab {
   display: inline-flex; align-items: center; gap: 10px; min-height: 50px; padding: 10px 20px;
   border: 2px solid rgba(41, 19, 57, 0.25); border-radius: 999px; background: rgba(255, 255, 255, 0.35);

@@ -68,32 +68,9 @@
     setPaused(paused);
   }
 
-  /* Mobile menu */
+  /* Menu: contact dropdown, current-section highlight, header shadow. */
   function initNav() {
-    var toggle = document.querySelector('.nav-toggle');
     var nav = document.querySelector('.site-nav');
-
-    function setOpen(open) {
-      nav.classList.toggle('is-open', open);
-      toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    }
-
-    toggle.addEventListener('click', function () {
-      setOpen(!nav.classList.contains('is-open'));
-    });
-    nav.addEventListener('click', function (e) {
-      if (e.target.closest('a')) setOpen(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
-        setOpen(false);
-        toggle.focus();
-      }
-    });
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.site-header')) setOpen(false);
-    });
 
     /* Contact dropdown: opens on click (and on hover with a mouse, via CSS). */
     var drop = nav.querySelector('.nav-contact');

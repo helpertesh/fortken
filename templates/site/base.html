@@ -7,6 +7,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="only light">
   <title>{% block title %}KF 4Fortken Holdings Ltd | Cleaning, Fumigation &amp; Facility Services{% endblock %}</title>
   <meta name="description" content="{% block description %}KF 4Fortken Holdings Ltd provides professional cleaning, fumigation, garbage collection, general supplies and allied facility management solutions in Kenya.{% endblock %}">
   <meta name="theme-color" content="#462461">
@@ -40,7 +41,7 @@
       <a class="brand" href="{{ '#home' if is_home else '/' }}" aria-label="KF 4Fortken Holdings Ltd, home">
         <img src="/assets/logo/logo.svg" alt="KF 4Fortken Holdings Ltd" width="468" height="132">
       </a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span></button>
+      <a class="btn btn-gold header-cta" href="#contact"><span>Request<span class="cta-extra"> a Service</span></span></a>
       <nav class="site-nav" id="site-nav" aria-label="Main">
         <ul class="nav-list">
           <li><a href="{{ home }}#about">About</a></li>
@@ -67,7 +68,7 @@
               <a class="drop-all" href="{{ url_for('site.contact') }}">See the contact page {{ arrow() }}</a>
             </div>
           </li>
-          <li><a class="btn btn-gold" href="#contact">Request a Service</a></li>
+          <li class="nav-cta"><a class="btn btn-gold" href="#contact">Request a Service</a></li>
         </ul>
       </nav>
     </div>

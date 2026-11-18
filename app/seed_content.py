@@ -282,3 +282,18 @@ ORDER = [
 ]
 
 NEW_SLIDE = ("Real Estate Services", "/assets/img/hero-realestate.jpg", "/assets/img/hero-realestate-960.jpg")
+
+# Added Nov 2026: a project the company is currently managing, shown first on the Property Management page.
+HIBISCUS_SECTION = {
+    "service_slug": "property-management",
+    "title": "Current Project: Hibiscus Homes, Shanzu",
+    "body": (
+        "Hibiscus Homes in Shanzu, Mombasa is one of the residential properties we currently manage.\n\n"
+        "Our team looks after the day-to-day running of the estate on behalf of the owners, keeping the buildings, "
+        "grounds and shared spaces in good order so residents enjoy a clean, safe and well-kept place to live."
+    ),
+    "points_title": "Project details",
+    "points": "Location: Shanzu, Mombasa\nType: Residential apartments\nStatus: Active, under our management",
+    "image": IMG + "hibiscus-homes.jpg",
+    "image_alt": "Apartment blocks with palm trees at Hibiscus Homes, Shanzu",
+}
