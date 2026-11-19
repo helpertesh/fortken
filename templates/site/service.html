@@ -12,7 +12,7 @@
         <div class="svc-hero-copy">
           <nav class="crumbs" aria-label="Breadcrumb">
             <a href="/">Home</a> <span aria-hidden="true">/</span>
-            <a href="/#services">{{ category.title if category else 'Services' }}</a> <span aria-hidden="true">/</span>
+            <a href="/#{{ service.category|replace('_', '-') }}">{{ category.title if category else 'Services' }}</a> <span aria-hidden="true">/</span>
             <span aria-current="page">{{ service.title }}</span>
           </nav>
           <span class="svc-hero-icon" data-accent="{{ service.accent }}">{{ icon(service.icon) }}</span>

@@ -36,7 +36,7 @@ CATEGORIES = {
     "environmental": {
         "label": "Cleaning & Environmental",
         "title": "Cleaning & Environmental Services",
-        "intro": "Professional cleaning, pest control, waste management, landscaping and supplies for homes, businesses and institutions.",
+        "intro": "Professional cleaning, pest control, waste management and landscaping for homes, businesses and institutions.",
     },
     "real_estate": {
         "label": "Real Estate",

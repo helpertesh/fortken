@@ -73,7 +73,7 @@ SERVICES = [
                 "points": ("Homes and apartments\nEstate common areas, stairways and corridors\nShops, plazas and showrooms\n"
                            "Restaurants and hospitality spaces\nWarehouses and industrial premises"),
                 "image": IMG + "residential-commercial.jpg",
-                "image_alt": "A gloved hand holding a spray bottle of cleaner",
+                "image_alt": "A bright, freshly cleaned living room",
             },
         ],
     },
@@ -164,7 +164,7 @@ SERVICES = [
         "icon": "home",
         "accent": "purple",
         "image": IMG + "property-management.jpg",
-        "image_alt": "A white residential property with palm trees and a pool",
+        "image_alt": "Apartment blocks and palm trees at Hibiscus Homes, Shanzu, a property we manage",
         "details": (
             "Owning property should be rewarding, not stressful. We take care of the day-to-day running of your residential or "
             "commercial property (tenants, maintenance, rent and records) so you get steady returns and peace of mind.\n\n"
@@ -204,7 +204,7 @@ SERVICES = [
         "icon": "receipt",
         "accent": "gold",
         "image": IMG + "rent-collection.jpg",
-        "image_alt": "Rent statements with a calculator and phone",
+        "image_alt": "A mobile phone held with Kenyan shilling notes",
         "details": (
             "Collecting rent on time, every month, is one of the hardest parts of being a landlord. We handle invoicing, "
             "collection and follow-up for you, and give you clear statements so you always know where your income stands."

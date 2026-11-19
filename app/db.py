@@ -278,6 +278,16 @@ def _hibiscus_project(db):
     db.execute("INSERT INTO settings (key, value) VALUES ('content_v3', '1')")
 
 
+def _hide_general_supplies(db):
+    """One-time (client request, Nov 2026): take General Supplies off the website.
+    Hidden rather than deleted, so an owner can show it again from the admin."""
+    if db.execute("SELECT 1 FROM settings WHERE key = 'content_v4'").fetchone():
+        return
+    db.execute("UPDATE services SET active = 0 WHERE title = 'General Supplies'")
+    db.execute("UPDATE slides SET active = 0 WHERE caption = 'General Supplies'")
+    db.execute("INSERT INTO settings (key, value) VALUES ('content_v4', '1')")
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     with app.app_context():
@@ -289,4 +299,5 @@ def init_app(app):
         _service_pages_update(db)
         _fill_slugs(db)
         _hibiscus_project(db)
+        _hide_general_supplies(db)
         db.commit()

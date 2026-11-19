@@ -1,8 +1,32 @@
 {% extends "site/base.html" %}
 {% from "site/_macros.html" import arrow, phone_icon, mail_icon, pin_icon, contact_form %}
 {% block main %}
+    <!-- Services showcase video, first thing on the page. Replace the files in static/assets/video/ to change it. -->
+    <section class="section video-section video-top" id="video" aria-labelledby="video-title">
+      <div class="wrap video-grid">
+        <div class="video-copy">
+          <p class="eyebrow">Watch</p>
+          <h2 id="video-title">Everything we do, in one short video.</h2>
+          <p>From post-construction cleaning, fumigation and waste collection to landscaping and property management at Hibiscus Homes in Shanzu, see how KF 4Fortken keeps homes, estates and businesses at their best.</p>
+          <div class="video-actions">
+            <a class="btn btn-purple" href="#services">Explore our services {{ arrow() }}</a>
+            <a class="service-link" href="#contact">Request a service</a>
+          </div>
+        </div>
+        <div class="video-frame">
+          <video class="showcase-video" controls muted playsinline preload="metadata" poster="/assets/video/kf-services-poster.jpg"
+                 aria-label="KF 4Fortken services showcase video">
+            <source src="/assets/video/kf-services.mp4" type="video/mp4">
+          </video>
+          <button class="sound-btn" type="button" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+            <span>Tap for sound</span></button>
+        </div>
+      </div>
+    </section>
+
     <!-- Hero: slides are managed in the admin panel under Hero Slides. -->
-    <section class="hero" id="home" aria-label="Introduction">
+    <section class="hero" id="slides" aria-label="Introduction">
       <div class="hero-slides">
         {% for slide in slides %}
         <div class="hero-slide{% if loop.first %} is-active{% endif %}" data-caption="{{ slide.caption }}">
@@ -48,7 +72,7 @@
         {% if loop.first %}
         {% for s in items %}<li><a href="{{ url_for('site.service', slug=s.slug) }}">{{ icon(s.icon) }} {{ s.title }}</a></li>{% endfor %}
         {% else %}
-        <li><a href="#services" data-tab-link="{{ key }}">{{ icon(items[0].icon) }} {{ info.title }}</a></li>
+        <li><a href="#{{ key|replace('_', '-') }}" data-tab-link="{{ key }}">{{ icon(items[0].icon) }} {{ info.title }}</a></li>
         {% endif %}
         {% endfor %}
       </ul>
@@ -61,12 +85,12 @@
           <div class="about-copy reveal">
             <p class="eyebrow">Who we are</p>
             <h2>A registered service company you can rely on.</h2>
-            <p>KF 4Fortken Holdings Ltd is a registered service company dedicated to providing professional cleaning, fumigation, garbage collection, landscaping, general supplies and allied facility management solutions.</p>
+            <p>KF 4Fortken Holdings Ltd is a registered service company dedicated to providing professional cleaning, fumigation, garbage collection, landscaping and allied facility management solutions.</p>
             <p>Through our real estate arm we also offer property management, facilities management, rent collection, commercial leasing, land sales and valuation, so owners can look after their property through one trusted partner.</p>
             <p>We operate with a commitment to quality, compliance and efficiency, ensuring that our clients receive reliable services aligned with the required standards and regulatory requirements.</p>
           </div>
           <div class="about-photo reveal">
-            <img src="/assets/img/about.jpg" alt="A cleaner in gloves and a mask wiping down a window" width="1200" height="960" loading="lazy">
+            <img src="/assets/img/about.jpg" alt="Apartment block and courtyard at Hibiscus Homes, Shanzu, a property we manage" width="1200" height="960" loading="lazy">
           </div>
         </div>
         <div class="vm-grid">
@@ -98,12 +122,20 @@
         </div>
         {% endif %}
         {% for key, info, items in categories %}
-        <div class="svc-panel" id="panel-{{ key }}" role="tabpanel" aria-labelledby="tab-{{ key }}">
-          <p class="svc-intro">{{ info.intro }}</p>
+        <div class="svc-panel" id="panel-{{ key }}" role="tabpanel" aria-labelledby="tab-{{ key }}" data-hash="{{ key|replace('_', '-') }}">
+          <div class="svc-panel-head" id="{{ key|replace('_', '-') }}">
+            <span class="svc-panel-icon">{{ icon(items[0].icon) }}</span>
+            <div>
+              <p class="svc-panel-kicker">You are viewing</p>
+              <h3>{{ info.title }} <span class="svc-panel-count">{{ items|length }} services</span></h3>
+              <p>{{ info.intro }}</p>
+            </div>
+          </div>
           {% set n = items|length %}{% set rem = n % 3 %}
           <div class="services-grid">
             {% for s in items %}
-            {% set span = 'span-3' if (rem == 2 and loop.index > n - 2) else ('span-6' if (rem == 1 and loop.last) else '') %}
+            {# Fill the last row: 2 left over -> two halves; 1 left over -> the last four as two pairs (or one full width). #}
+            {% set span = 'span-3' if (rem == 2 and loop.index > n - 2) or (rem == 1 and n >= 4 and loop.index > n - 4) else ('span-6' if (rem == 1 and loop.last) else '') %}
             {% set page = url_for('site.service', slug=s.slug) %}
             <article class="service-card reveal {{ span }}" data-accent="{{ s.accent }}">
               {% if s.image %}<a href="{{ page }}" tabindex="-1" aria-hidden="true"><img class="service-photo" src="{{ s.image }}" alt="" width="900" height="600" loading="lazy"></a>{% endif %}
@@ -145,7 +177,7 @@
           <li class="objective reveal">
             <span class="objective-num" aria-hidden="true">3</span>
             <h3>Sustainability</h3>
-            <p>Eco-friendly practices in waste management and supplies to minimize environmental impact.</p>
+            <p>Eco-friendly practices in waste management and in the products we use, to minimize environmental impact.</p>
           </li>
           <li class="objective reveal">
             <span class="objective-num" aria-hidden="true">4</span>

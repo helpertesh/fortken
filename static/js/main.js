@@ -195,22 +195,43 @@
     });
   }
 
-  /* Service division tabs. Without JS every division simply shows in turn. */
+  /* Service division tabs. Each division has its own address (#environmental, #real-estate)
+     so links from the strip, the service pages and shared links open the right one.
+     Without JS every division simply shows in turn. */
   function initTabs() {
     var tabs = document.querySelectorAll('.svc-tab');
     if (!tabs.length) return;
+
+    function panelOf(tab) { return document.getElementById(tab.getAttribute('aria-controls')); }
 
     function select(tab) {
       tabs.forEach(function (t) {
         var on = t === tab;
         t.setAttribute('aria-selected', String(on));
         t.tabIndex = on ? 0 : -1;
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        panelOf(t).hidden = !on;
       });
     }
 
+    function tabForHash(hash) {
+      var found = null;
+      tabs.forEach(function (t) { if ('#' + panelOf(t).dataset.hash === hash) found = t; });
+      return found;
+    }
+
+    function openFromHash(scroll) {
+      var tab = tabForHash(location.hash);
+      if (!tab) return false;
+      select(tab);
+      if (scroll) panelOf(tab).querySelector('.svc-panel-head').scrollIntoView({ block: 'start' });
+      return true;
+    }
+
     tabs.forEach(function (tab, i) {
-      tab.addEventListener('click', function () { select(tab); });
+      tab.addEventListener('click', function () {
+        select(tab);
+        history.replaceState(null, '', '#' + panelOf(tab).dataset.hash);
+      });
       tab.addEventListener('keydown', function (e) {
         var step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
         if (!step) return;
@@ -219,15 +240,72 @@
         next.focus();
       });
     });
+    // The strip's division links: open the tab first so the browser scrolls to a visible heading.
     document.querySelectorAll('[data-tab-link]').forEach(function (link) {
       link.addEventListener('click', function () {
         select(document.getElementById('tab-' + link.dataset.tabLink));
       });
     });
-    select(tabs[0]);
+    window.addEventListener('hashchange', function () { openFromHash(true); });
+    if (!openFromHash(true)) select(tabs[0]);
+  }
+
+  /* Showcase video. Browsers only allow sound after the visitor taps, so it starts
+     silently with a "Tap for sound" button. It pauses when scrolled out of view.
+     It doesn't start by itself for visitors who prefer reduced motion or use data saver. */
+  function initVideo() {
+    var video = document.querySelector('.showcase-video');
+    if (!video) return;
+    var soundBtn = document.querySelector('.sound-btn');
+    var saveData = navigator.connection && navigator.connection.saveData;
+    var autoplay = !reducedMotion && !saveData && 'IntersectionObserver' in window;
+    var userPaused = false;
+    var withSound = false;
+
+    function showButton(show) { if (soundBtn) soundBtn.hidden = !show; }
+
+    if (soundBtn) {
+      showButton(true);
+      soundBtn.addEventListener('click', function () {
+        withSound = true;
+        video.loop = false;
+        video.muted = false;
+        video.currentTime = 0;
+        video.play().catch(function () {});
+        showButton(false);
+      });
+    }
+    video.addEventListener('volumechange', function () {
+      if (!video.muted && video.volume > 0) { withSound = true; showButton(false); }
+    });
+    video.addEventListener('ended', function () {
+      // After playing through with sound, carry on silently and offer sound again.
+      withSound = false;
+      video.muted = true;
+      video.loop = true;
+      showButton(true);
+      if (autoplay) video.play().catch(function () {});
+    });
+    video.addEventListener('pause', function () { if (!video.dataset.autoPausing) userPaused = true; });
+    video.addEventListener('play', function () { userPaused = false; });
+
+    if (!autoplay) return;
+    video.preload = 'auto';  // start downloading now so it begins playing sooner
+    new IntersectionObserver(function (entries) {
+      var entry = entries[0];
+      if (entry.isIntersecting && !userPaused) {
+        if (!withSound) { video.muted = true; video.loop = true; }
+        video.play().catch(function () {});
+      } else if (!entry.isIntersecting && !video.paused) {
+        video.dataset.autoPausing = '1';
+        video.pause();
+        delete video.dataset.autoPausing;
+      }
+    }, { threshold: 0.5 }).observe(video);
   }
 
   initTabs();
+  initVideo();
   initSlider();
   initNav();
   initReveal();
